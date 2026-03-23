@@ -1,12 +1,10 @@
 # Advanced AI Auto-Remediation Recommendation Engine
 # --------------------------------------------------
-# Features:
 # - Wiz issue ingestion
-# - ML-based classification (sklearn placeholder)
-# - OpenAI LLM remediation generation
-# - Context-aware prompt engineering
+# - ML-based classification (sklearn placeholder) to classify our Wiz data
+# - Use LLM to generate remediation recomendations with prompt engineering
 # - Terraform + CLI + Explanation output
-# - FastAPI service
+# - FastAPI service to make remediations
 
 import json
 import os
@@ -92,7 +90,8 @@ classifier.train(
 
 )
 
-# 2. Fix Templates (Fallback)
+# 2. Fix Templates (Fallback). in case LLM does not generate proper response. 
+# Could have lots of false postives not everything in AWS is a bucket. Make more granular
 
 FIX_TEMPLATES = {
     "s3_misconfig": {
@@ -179,9 +178,7 @@ class RemediationEngine:
 
 engine = RemediationEngine()
 
-# -----------------------------
-# 5. FastAPI Service
-# -----------------------------
+#  FastAPI Service
 
 app = FastAPI(title="AI Auto-Remediation Engine")
 
@@ -208,6 +205,14 @@ if __name__ == "__main__":
         "severity": "HIGH",
         "details": {"public": True}
     }
+    
+    #sample_issue = {
+    #    "id": "wiz-568",
+    #    "type": "APIGATEWAY_PUBLIC",
+    #    "resource": {"name": "my-apigateway"},
+    #    "severity": "HIGH",
+    #    "details": {"public": True}
+    #}
 
     result = engine.generate_fix(sample_issue)
     print(json.dumps(result, indent=2))
