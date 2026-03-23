@@ -117,20 +117,6 @@ The OpenAI model produces a structured response:
 
 ---
 
-## Example Output
-
-```
-Event:
-Traffic from 192.168.1.100:4444 to 10.0.0.5:3389
-
-AI Analysis:
-- Malicious: Yes
-- Threat Level: High
-- MITRE Technique: T1021 (Remote Services)
-- Explanation: Possible lateral movement via RDP
-- Recommended Action: Block IP and investigate endpoint
-```
-
 # Example of Model showing communication is normal 
 ```
 Event:
