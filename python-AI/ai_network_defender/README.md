@@ -39,9 +39,8 @@ export OPENAI_API_KEY="your_api_key_here"
 
 ```
 AI-Network-Defender/
-├── main.py
-├── palo_alto_logs.csv
-└── README.md
+├─ main.py
+├─ palo_alto_logs.csv
 ```
 
 
@@ -71,20 +70,20 @@ Traffic from 192.168.1.5:51515 to 10.0.0.2:22 using ssh action=allow bytes=1200
 
 
 
-### 2. Add Threat Intelligence
+### 2. Add MITRE ATT&CK info
 The app includes MITRE ATT&CK techniques such as:
 
-- T1110 – Brute Force  
-- T1021 – Remote Services  
-- T1046 – Network Scanning  
-- T1071 – Application Layer C2  
-- T1041 – Data Exfiltration  
+- T1110 Brute Force  
+- T1021  Remote Services  
+- T1046  Network Scanning  
+- T1071  Application Layer C2  
+- T1041  Data Exfiltration  
 
 
 
 ### 3. Create Embeddings
 Both logs and MITRE data are converted into vectors using OpenAI embeddings.
-
+Text is converted into embeddings (vectors) so LLMs can understand the data 
 
 
 ### 4. Store in Vector Database
@@ -94,13 +93,10 @@ FAISS is used for fast similarity search:
 index = faiss.IndexFlatL2(dimension)
 ```
 
-
-
-### 5. Retrieve Context (RAG)
+### 5. Retrieval Augmented Generations (RAGs)
 When analyzing a new event:
 - Finds similar past logs  
 - Pulls relevant MITRE techniques  
-- Combines them as context  
 
 
 
@@ -109,7 +105,7 @@ The OpenAI model produces a structured response:
 
 ```
 - Is it malicious?
-- Threat level
+-  Determine Threat level
 - MITRE technique
 - Explanation
 - Recommended response
