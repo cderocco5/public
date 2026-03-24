@@ -3,14 +3,8 @@ import pandas as pd
 import numpy as np
 import faiss
 
-# =========================
-# INIT OPENAI
-# =========================
+# inti api and load netowrk logs
 client = OpenAI()
-
-# =========================
-# LOAD PALO ALTO LOGS
-# =========================
 df = pd.read_csv("palo_alto_logs.csv")
 
 def row_to_text(row):
@@ -26,29 +20,23 @@ log_docs = df.apply(row_to_text, axis=1).tolist()
 # MITRE ATT&CK DATA
 # =========================
 mitre_data = [
-    {"technique": "T1110", "name": "Brute Force",
-     "description": "Adversaries may attempt to guess passwords for accounts such as SSH or RDP."},
-
-    {"technique": "T1021", "name": "Remote Services",
-     "description": "Use of RDP, SMB, or SSH to move laterally across systems."},
-
-    {"technique": "T1046", "name": "Network Service Scanning",
-     "description": "Scanning ports/services to identify targets."},
-
-    {"technique": "T1071", "name": "Application Layer Protocol",
-     "description": "Using HTTP, HTTPS, or DNS for command and control communication."},
-
+    { "technique": "T1110", "name": "Brute Force","description": "Adversaries may attempt to guess passwords for accounts such as SSH or RDP."},
+    {"technique": "T1021", "name": "Remote Services","description": "Use of RDP, SMB, or SSH to move laterally across systems."},
+    {"technique": "T1046", "name": "Network Service Scanning","description": "Scanning ports/services to identify targets."},
+    {"technique": "T1071", "name": "Application Layer Protocol", "description": "Using HTTP, HTTPS, or DNS for command and control communication."},
     {"technique": "T1041", "name": "Exfiltration Over C2 Channel",
      "description": "Large data transfers out of the network over command channels."}
 ]
 
+
+# save miter data techniques for RAG
 def mitre_to_text(entry):
     return f"{entry['technique']} {entry['name']} {entry['description']}"
 
 mitre_docs = [mitre_to_text(m) for m in mitre_data]
 
 
-# EMBEDDING FUNCTION
+# embed text so llm can understand
 def embed(texts):
     response = client.embeddings.create(
         model="text-embedding-3-small",
@@ -61,7 +49,7 @@ print("Generating embeddings...")
 log_embeddings = embed(log_docs)
 mitre_embeddings = embed(mitre_docs)
 
-# BUILD VECTOR DATABASE
+# vector database
 all_docs = log_docs + mitre_docs
 all_embeddings = log_embeddings + mitre_embeddings
 
@@ -70,15 +58,12 @@ index = faiss.IndexFlatL2(dimension)
 
 index.add(np.array(all_embeddings).astype("float32"))
 
-print("Vector DB ready")
+print("completed embedings...")
 
-# =========================
-# RETRIEVAL FUNCTION (RAG)
-# =========================
+# build my RAG
 def retrieve(query, k=5):
     q_emb = embed([query])[0]
     D, I = index.search(np.array([q_emb]).astype("float32"), k)
-
     return [all_docs[i] for i in I[0]]
 
 # =========================
@@ -111,9 +96,7 @@ def analyze_event(event_text):
 
     return response.output_text
 
-# =========================
-# TEST EVENTS
-# =========================
+# sample events
 test_events = [
     "Traffic from 192.168.1.100:4444 to 10.0.0.5:3389 using unknown action=allow bytes=9999",
     "Traffic from 8.8.8.8:53 to 192.168.1.30:53 using dns action=allow bytes=200",
@@ -124,7 +107,6 @@ test_events = [
 # RUN ANALYSIS
 # =========================
 for event in test_events:
-    print("==============================")
     print("Event:")
     print(event)
 

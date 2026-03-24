@@ -1,5 +1,4 @@
 # Advanced AI Auto-Remediation Recommendation Engine
-# --------------------------------------------------
 # - Wiz issue ingestion
 # - ML-based classification (sklearn placeholder) to classify our Wiz data
 # - Use LLM to generate remediation recomendations with prompt engineering
@@ -26,6 +25,7 @@ class IssueClassifier:
         self.model = LogisticRegression()
         self.trained = False
 
+
     # train model
     def train(self, texts, labels):
         X = self.vectorizer.fit_transform(texts)
@@ -44,8 +44,7 @@ classifier = IssueClassifier()
 # Sample 'minimized' WIZ dataset
 classifier.train(
     [
-        "S3 bucket is public",
-        "S3 bucket allows public read access",
+        "S3 bucket is public","S3 bucket allows public read access",
         "Security group open to 0.0.0.0",
         "Security group allows SSH from anywhere",
         "IAM role has admin access",
@@ -110,9 +109,7 @@ FIX_TEMPLATES = {
 def generate_llm_fix(issue: Dict[str, Any]) -> Dict[str, str]:
     prompt = f"""
 You are a senior cloud security engineer.
-
 Analyze this Wiz issue and generate a structured remediation:
-
 Issue:
 {json.dumps(issue, indent=2)}
 
@@ -193,9 +190,6 @@ class Issue(BaseModel):
 def remediate(issue: Issue):
     return engine.generate_fix(issue.dict())
 
-# -----------------------------
-# 6. Example Run
-# -----------------------------
 
 if __name__ == "__main__":
     sample_issue = {
@@ -205,7 +199,7 @@ if __name__ == "__main__":
         "severity": "HIGH",
         "details": {"public": True}
     }
-    
+    # test with other service
     #sample_issue = {
     #    "id": "wiz-568",
     #    "type": "APIGATEWAY_PUBLIC",

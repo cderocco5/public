@@ -7,34 +7,37 @@ from openai import OpenAI
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 
-# --- Initialize OpenAI ---
+# init open ai
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# --- Azure Authentication ---
+
+# azure auth
 credential = DefaultAzureCredential()
 subscription_id = os.getenv("AZURE_SUBSCRIPTION_ID")
 
 auth_client = AuthorizationManagementClient(credential, subscription_id)
 monitor_client = MonitorManagementClient(credential, subscription_id)
 
-#  Get Role Definitions ---
+#  Get Role Definitions 
 role_defs = list(auth_client.role_definitions.list(
     scope=f"/subscriptions/{subscription_id}"
 ))
 
-# Example: Role name and allowed actions
+
+# add all role and perms to list
 roles = []
 for rd in role_defs:
     roles.append({
         "role_name": rd.role_name,
         "permissions": rd.permissions[0].actions if rd.permissions else []
     })
-
 # get activity logs
 # Pull logs from beginning of year
 logs = monitor_client.activity_logs.list(
     filter="eventTimestamp ge '2026-01-01T00:00:00Z'"
 )
+
+
 
 # get the actions used by the role
 used_actions = {}
@@ -60,14 +63,14 @@ for role in roles:
     })
 
 df = pd.DataFrame(role_analysis)
-
-# AI Anomaly Detection to determine the risk of the permission on the roles ---
+# AI Anomaly Detection to determine the risk of the permission on the roles
+# -1 -> anomaly (high risk)
+# 1 ->  normal
 model = IsolationForest(contamination=0.2, random_state=42)
 df["risk_score"] = model.fit_predict(df[["granted_permissions","unused_permissions"]])
-# -1 = anomaly (high risk), 
-# 1 = normal
 
-# Ask LLM for recommendations ---
+
+# Ask LLM for recommendations
 for _, row in df.iterrows():
     prompt = f"""
 The Azure role '{row['role_name']}' has {row['granted_permissions']} granted permissions, 
@@ -83,6 +86,6 @@ Explain the potential risks and suggest least-privilege adjustments.
     )
     row["explanation"] = response.choices[0].message.content
 
-# --- Step 6: Save results ---
+# output
 df.to_json("azure_role_risk_report.json", indent=2)
 print(df[["role_name","unused_permissions","risk_score","explanation"]])
