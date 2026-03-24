@@ -1,8 +1,8 @@
-# WIZ AI Auto-Remediation Terraform Engine
+## WIZ AI Auto-Remediation Terraform and CLI Engine
 
 ## Overview
 
-This project is an **AI-powered cloud security remediation engine** that processes Wiz CNAPP findings and automatically generates terraform templates for fixes.
+This project is an LLM AI cloud remediation engine that processes hypothetical Wiz CNAPP findings and automatically generates terraform templates and AWS CLI for fixes.
 
 Combines:
 
@@ -11,11 +11,10 @@ Combines:
 - Rule-based fallbacks
 - FastAPI service (API layer) to interact with WIZ
 
----
 
-## 1. Input Layer (Wiz Issues)
+### 1. Input Layer (Wiz Issues)
 
-Arbitrary Wiz finding
+concised "Wiz" finding. (Prod Env will use real WIZ finding which is more repose)
 
 ```json
 {
@@ -27,7 +26,7 @@ Arbitrary Wiz finding
 }
 ```
 
----
+
 
 ## 2. ML Classification Layer
 
@@ -47,15 +46,15 @@ Classifies issues into categories such as:
 
 ### Uses
 
-* Uses **TF-IDF vectorization**
-* Uses **Logistic Regression**
+* Uses TF-IDF vectorization
+* Uses Logistic Regression
 
 ```python
 self.vectorizer = TfidfVectorizer()
 self.model = LogisticRegression()
 ```
 
----
+
 
 ## 3. LLM Remediation Engine
 
@@ -68,16 +67,15 @@ Uses OpenAI to generate:
 * Risk level
 * Auto-fix safety flag
 
-### 🧾 Prompt Design for gpt-4o-mini
+### Prompt Design for gpt-4o-mini
 
 ```text
 You are a senior cloud security engineer.
-
 Analyze this Wiz issue and generate a structured remediation.
 ```
 
 
-### 📤 Example Output
+###Example Output
 
 ```json
 {
@@ -89,7 +87,7 @@ Analyze this Wiz issue and generate a structured remediation.
 }
 ```
 
----
+
 
 ## 4. Fallback Fix Templates
 
@@ -107,33 +105,18 @@ resource "aws_s3_bucket_public_access_block" "block" {
 }
 ```
 
----
+
 
 ## 5. Remediation Engine
 
-### 🔧 Responsibilities
+### Responsibilities
 
-* Classifies issue
-* Calls LLM
-* Applies fallback templates
-* Returns structured output
+- Classifies issue
+- Calls LLM
+- Applies fallback templates
+- Returns structured output
 
-### 📤 Output Example
-
-```json
-{
-  "category": "s3_misconfig",
-  "llm": {...},
-  "fallback": {
-    "terraform": "...",
-    "cli": "..."
-  }
-}
-```
-
----
-
-## 6. API Layer (FastAPI)
+## 6. API Layer (FastAPI) to test API calls
 
 ### Endpoint
 
@@ -141,7 +124,7 @@ resource "aws_s3_bucket_public_access_block" "block" {
 POST /remediate
 ```
 
----
+
 
 
 ## 1. Install Dependencies
@@ -150,7 +133,7 @@ POST /remediate
 pip install fastapi uvicorn openai scikit-learn pydantic
 ```
 
----
+
 
 ## 2. llm api key
 
@@ -160,7 +143,7 @@ pip install fastapi uvicorn openai scikit-learn pydantic
 export OPENAI_API_KEY=your_api_key_here
 ```
 
----
+
 
 ## 3. Run Script 
 
@@ -168,45 +151,10 @@ export OPENAI_API_KEY=your_api_key_here
 python main.py
 ```
 
----
 
-## 4. Run API Server
 
-```bash
-uvicorn main.py:app --reload
-```
 
-Server runs at:
-
-```
-http://127.0.0.1:8000
-```
-
----
-
-## 5. Test API
-
-### Sample of how api call to do remediation will work
-
-```bash
-curl -X POST http://127.0.0.1:8000/remediate \
--H "Content-Type: application/json" \
--d '{"id":"wiz-1","type":"S3_PUBLIC","resource":{"name":"my-bucket"},"severity":"HIGH","details":{"public":true}}'
-```
-
----
-
-## 6. Interactive Docs
-
-Open:
-
-```
-http://127.0.0.1:8000/docs
-```
-
----
-
-# 🔥 Example Output
+# Example Output
 
 ```json
 ## Example Remediation Output useing cli or terraform to autofix the misconfiguration
@@ -243,27 +191,8 @@ http://127.0.0.1:8000/docs
   }
 }
 ```
-
----
-
-# Key Concepts
-
-## Hybrid AI Architecture
-
-This system combines:
-
-* ML classification
-* LLM intelligent reasoning
-* reliability + fallback
   
----
 
-# Summary
 
-This project demonstrates:
-
-* AI + Cloud Security integration
-* Automated remediation workflows
-* Production-style architecture
 
 
