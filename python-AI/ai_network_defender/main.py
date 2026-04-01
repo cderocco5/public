@@ -16,9 +16,7 @@ def row_to_text(row):
 
 log_docs = df.apply(row_to_text, axis=1).tolist()
 
-# =========================
-# MITRE ATT&CK DATA
-# =========================
+# mitre attack data for rag
 mitre_data = [
     { "technique": "T1110", "name": "Brute Force","description": "Adversaries may attempt to guess passwords for accounts such as SSH or RDP."},
     {"technique": "T1021", "name": "Remote Services","description": "Use of RDP, SMB, or SSH to move laterally across systems."},
@@ -64,11 +62,13 @@ print("completed embedings...")
 def retrieve(query, k=5):
     q_emb = embed([query])[0]
     D, I = index.search(np.array([q_emb]).astype("float32"), k)
-    return [all_docs[i] for i in I[0]]
+    results = []
+    for i in I[0]:
+        results.append(all_docs[i])
 
-# =========================
-# AI ANALYSIS FUNCTION
-# =========================
+    return result
+
+# ai analysts functions
 def analyze_event(event_text):
     context = retrieve(event_text)
 
