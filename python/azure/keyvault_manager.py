@@ -4,7 +4,7 @@ from azure.keyvault.secrets import SecretClient
 from azure.keyvault.certificates import CertificateClient
 
 # Replace with your Key Vault URL
-KEY_VAULT_URL = "https://<your-key-vault-name>.vault.azure.net/"
+KEY_VAULT_URL = "https://my-demo-kv.vault.azure.net/"
 
 # Authenticate using DefaultAzureCredential (supports environment, managed identity, etc.)
 credential = DefaultAzureCredential()
